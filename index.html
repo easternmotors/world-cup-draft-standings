@@ -269,9 +269,10 @@
     const ranked = Object.entries(PLAYERS).map(([name, teams]) => {
       const roster = teams.map(t => [t, pts[t] || 0]);
       const remaining = teams.filter(t => !eliminated[t]).length;
-      const games = teams.reduce((s, t) => s + (gp[t] || 0), 0);
+      const liveGames = teams.filter(t => live[t]).length;
+      const games = teams.reduce((s, t) => s + (gp[t] || 0), 0) + liveGames;
       const goalDiff = teams.reduce((s, t) => s + (gd[t] || 0), 0);
-      return { name, teams: roster, total: roster.reduce((s, [, n]) => s + n, 0), remaining, squad: teams.length, games, goalDiff };
+      return { name, teams: roster, total: roster.reduce((s, [, n]) => s + n, 0), remaining, squad: teams.length, games, liveGames, goalDiff };
     }).sort((a, b) => b.total - a.total || b.goalDiff - a.goalDiff || a.name.localeCompare(b.name));
 
     // tie-aware ranks: players level on points AND goal difference share a rank (e.g. T3)
@@ -319,7 +320,7 @@
               <div class="mt-0.5 flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted">
                 <span class="${remColor}" title="Teams still alive in the tournament">${p.remaining}/${p.squad} alive</span>
                 <span class="text-border">·</span>
-                <span title="Games played by this player's teams">${p.games} GP</span>
+                <span class="${p.liveGames > 0 ? "text-red-400" : ""}" title="Games played by this player's teams${p.liveGames > 0 ? " (includes live matches)" : ""}">${p.games} GP</span>
                 <span class="text-border">·</span>
                 <span title="Goal difference (tiebreaker)">${p.goalDiff > 0 ? "+" + p.goalDiff : p.goalDiff} GD</span>
               </div>
