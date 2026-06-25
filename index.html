@@ -86,10 +86,6 @@
 
     <!-- ── SCHEDULE PANEL ────────────────────────────────────────── -->
     <div id="panel-schedule" class="hidden">
-      <div class="flex items-center justify-between text-[11px] uppercase tracking-widest text-muted px-4 pb-2">
-        <span>Match / Result</span>
-        <span>Owners</span>
-      </div>
       <div id="schedule" class="space-y-6">
         <div class="rounded-lg border border-border bg-surface px-4 py-6 text-muted text-sm cursor">Fetching schedule from ESPN</div>
       </div>
@@ -401,7 +397,11 @@
   }
 
   function renderSchedule(events) {
-    const evs = (events || []).slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+    const sorted = (events || []).slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+    // order: today through the end of the tournament first, then the first day through yesterday
+    const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0);
+    const evs = sorted.filter(e => new Date(e.date) >= startOfToday)
+      .concat(sorted.filter(e => new Date(e.date) < startOfToday));
     if (!evs.length) {
       $sched.innerHTML = `<div class="rounded-lg border border-border bg-surface px-4 py-6 text-muted text-sm">No matches found.</div>`;
       return;
