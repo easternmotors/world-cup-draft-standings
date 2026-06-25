@@ -105,9 +105,10 @@
           <div class="px-4 py-3">
             <div class="text-fg font-bold text-sm mb-2">Knockout stage</div>
             <ul class="space-y-1 text-sm text-muted">
-              <li class="flex justify-between gap-4"><span>Advance</span><span class="text-accent font-bold tabular-nums">3</span></li>
-              <li class="flex justify-between gap-4"><span>Eliminated on penalties</span><span class="text-accent font-bold tabular-nums">1</span></li>
-              <li class="flex justify-between gap-4"><span>Eliminated before penalties</span><span class="text-muted font-bold tabular-nums">0</span></li>
+              <li class="flex justify-between gap-4"><span>Win</span><span class="text-accent font-bold tabular-nums">3</span></li>
+              <li class="flex justify-between gap-4"><span>Shootout win</span><span class="text-accent font-bold tabular-nums">2</span></li>
+              <li class="flex justify-between gap-4"><span>Shootout loss</span><span class="text-accent font-bold tabular-nums">1</span></li>
+              <li class="flex justify-between gap-4"><span>Loss</span><span class="text-muted font-bold tabular-nums">0</span></li>
             </ul>
           </div>
         </div>
@@ -192,7 +193,7 @@
   }
 
   // ── Scoring ──────────────────────────────────────────────────────────
-  // group: win 3 / draw 1 / loss 0.  knockout: advance 3 / lose on PKs 1 / out 0.
+  // group: win 3 / draw 1 / loss 0.  knockout: win 3 / shootout win 2 / shootout loss 1 / loss 0.
   function scoreEvents(events) {
     const pts = {};
     const live = {};          // draftTeam -> true if its current points come from an in-progress match
@@ -251,8 +252,8 @@
 
         if (inProgress && hScore === aScore) {
           // tied live knockout: outcome undecided, award nothing yet
-        } else if (homeAdvanced) { add(hTeam, 3, inProgress); add(aTeam, wentToPens ? 1 : 0, inProgress); }
-        else { add(aTeam, 3, inProgress); add(hTeam, wentToPens ? 1 : 0, inProgress); }
+        } else if (homeAdvanced) { add(hTeam, wentToPens ? 2 : 3, inProgress); add(aTeam, wentToPens ? 1 : 0, inProgress); }
+        else { add(aTeam, wentToPens ? 2 : 3, inProgress); add(hTeam, wentToPens ? 1 : 0, inProgress); }
 
         // a finished knockout match eliminates the side that didn't advance
         if (completed && !inProgress) out(homeAdvanced ? aTeam : hTeam);
