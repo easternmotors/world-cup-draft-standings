@@ -1,379 +1,687 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>World Cup Draft Pool — Leaderboard</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;500;700;800&display=swap" rel="stylesheet" />
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        fontFamily: { mono: ['"Inconsolata"', 'ui-monospace', 'SFMono-Regular', 'monospace'] },
-        colors: {
-          bg: '#0a0a0a', surface: '#111111', surface2: '#161616', border: '#262626',
-          muted: '#6b6b6b', fg: '#ededed', accent: '#fab283', accentdim: '#7a5a3a',
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>World Cup Draft Pool — Leaderboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              mono: [
+                '"Inconsolata"',
+                "ui-monospace",
+                "SFMono-Regular",
+                "monospace",
+              ],
+            },
+            colors: {
+              bg: "#0a0a0a",
+              surface: "#111111",
+              surface2: "#161616",
+              border: "#262626",
+              muted: "#6b6b6b",
+              fg: "#ededed",
+              accent: "#fab283",
+              accentdim: "#7a5a3a",
+            },
+          },
         },
-      },
-    },
-  };
-</script>
-<style>
-  html { scrollbar-color: #262626 #0a0a0a; }
-  ::selection { background: #fab283; color: #0a0a0a; }
-  .glow { box-shadow: 0 0 0 1px #262626, 0 0 24px -8px rgba(250,178,131,0.25); }
-  @keyframes blink { 50% { opacity: 0; } }
-  .cursor::after { content: "▋"; animation: blink 1s step-end infinite; color: #fab283; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .spin { animation: spin 0.8s linear infinite; }
-  summary { list-style: none; }
-  summary::-webkit-details-marker { display: none; }
-  .chevron { transition: transform 0.2s ease; }
-  details[open] .chevron { transform: rotate(180deg); }
-</style>
-</head>
-<body class="bg-bg text-fg font-mono antialiased min-h-screen">
-  <div class="mx-auto max-w-3xl px-4 py-10 sm:py-14">
+      };
+    </script>
+    <style>
+      html {
+        scrollbar-color: #262626 #0a0a0a;
+      }
+      ::selection {
+        background: #fab283;
+        color: #0a0a0a;
+      }
+      .glow {
+        box-shadow:
+          0 0 0 1px #262626,
+          0 0 24px -8px rgba(250, 178, 131, 0.25);
+      }
+      @keyframes blink {
+        50% {
+          opacity: 0;
+        }
+      }
+      .cursor::after {
+        content: "▋";
+        animation: blink 1s step-end infinite;
+        color: #fab283;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .spin {
+        animation: spin 0.8s linear infinite;
+      }
+      summary {
+        list-style: none;
+      }
+      summary::-webkit-details-marker {
+        display: none;
+      }
+      .chevron {
+        transition: transform 0.2s ease;
+      }
+      details[open] .chevron {
+        transform: rotate(180deg);
+      }
+    </style>
+  </head>
+  <body class="bg-bg text-fg font-mono antialiased min-h-screen">
+    <div class="mx-auto max-w-3xl px-4 pt-6 pb-10 sm:py-14">
+      <header class="mb-5 sm:mb-8 text-center">
+        <div class="flex items-stretch justify-center gap-4">
+          <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+            World Cup Draft Leaderboard
+          </h1>
+        </div>
+        <p class="text-muted text-sm mt-2">
+          Live results from <span class="text-fg/70">ESPN</span> · updates every
+          minute
+        </p>
+      </header>
 
-    <header class="mb-8 text-center">
-      <div class="flex items-stretch justify-center gap-4">
-        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
-          World Cup Draft Leaderboard
-        </h1>
-      </div>
-      <p class="text-muted text-sm mt-2">
-        Live results from <span class="text-fg/70">ESPN</span> · updates every minute
-      </p>
-    </header>
-
-    <!-- Tabs -->
-    <nav class="mb-8 flex items-center justify-center gap-1 border-b border-border">
-      <button data-tab="leaderboard"
-        class="tab-btn -mb-px border-b-2 border-accent text-fg px-4 py-2 text-sm font-bold transition-colors">
-        Leaderboard
-      </button>
-      <button data-tab="schedule"
-        class="tab-btn -mb-px border-b-2 border-transparent text-muted hover:text-fg px-4 py-2 text-sm font-bold transition-colors">
-        Schedule
-      </button>
-      <button data-tab="rules"
-        class="tab-btn -mb-px border-b-2 border-transparent text-muted hover:text-fg px-4 py-2 text-sm font-bold transition-colors">
-        Rules
-      </button>
-    </nav>
-
-    <!-- ── LEADERBOARD PANEL ───────────────────────────────────────── -->
-    <div id="panel-leaderboard">
-
-    <main>
-      <div class="flex items-center gap-3 text-[11px] uppercase tracking-widest text-muted px-4 pb-2">
-        <span class="flex-1 pl-2">Rank / Player</span>
-        <button id="toggle-all" type="button" class="inline-flex items-center gap-1 uppercase tracking-widest text-muted hover:text-fg transition-colors">
-          <span id="toggle-all-label">Expand all</span>
-          <svg id="toggle-all-icon" class="w-3 h-3 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      <!-- Tabs -->
+      <nav
+        class="mb-8 flex items-center justify-center gap-1 border-b border-border"
+      >
+        <button
+          data-tab="leaderboard"
+          class="tab-btn -mb-px border-b-2 border-accent text-fg px-4 py-2 text-sm font-bold transition-colors"
+        >
+          Leaderboard
         </button>
-        <span class="flex-1 text-right pr-7">Points</span>
-      </div>
-      <ol id="leaderboard" class="space-y-2">
-        <li class="rounded-lg border border-border bg-surface px-4 py-6 text-muted text-sm cursor">Fetching results from ESPN</li>
-      </ol>
-    </main>
+        <button
+          data-tab="schedule"
+          class="tab-btn -mb-px border-b-2 border-transparent text-muted hover:text-fg px-4 py-2 text-sm font-bold transition-colors"
+        >
+          Schedule
+        </button>
+        <button
+          data-tab="rules"
+          class="tab-btn -mb-px border-b-2 border-transparent text-muted hover:text-fg px-4 py-2 text-sm font-bold transition-colors"
+        >
+          Rules
+        </button>
+      </nav>
 
-    </div><!-- /panel-leaderboard -->
-
-    <!-- ── SCHEDULE PANEL ────────────────────────────────────────── -->
-    <div id="panel-schedule" class="hidden">
-      <div id="schedule" class="space-y-6">
-        <div class="rounded-lg border border-border bg-surface px-4 py-6 text-muted text-sm cursor">Fetching schedule from ESPN</div>
-      </div>
-    </div><!-- /panel-schedule -->
-
-    <!-- ── RULES PANEL ───────────────────────────────────────────── -->
-    <div id="panel-rules" class="hidden">
-      <section class="rounded-lg border border-border bg-surface overflow-hidden">
-        <div class="flex items-center gap-2 px-4 py-2 border-b border-border text-[11px] uppercase tracking-widest text-muted">
-          <span class="text-accent">#</span> Scoring
-        </div>
-        <div class="grid sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border">
-          <div class="px-4 py-3">
-            <div class="text-fg font-bold text-sm mb-2">Group stage</div>
-            <ul class="space-y-1 text-sm text-muted">
-              <li class="flex justify-between gap-4"><span>Win</span><span class="text-accent font-bold tabular-nums">3</span></li>
-              <li class="flex justify-between gap-4"><span>Draw</span><span class="text-accent font-bold tabular-nums">1</span></li>
-              <li class="flex justify-between gap-4"><span>Loss</span><span class="text-muted font-bold tabular-nums">0</span></li>
-            </ul>
+      <!-- ── LEADERBOARD PANEL ───────────────────────────────────────── -->
+      <div id="panel-leaderboard">
+        <main>
+          <div
+            class="flex items-center gap-3 text-[11px] uppercase tracking-widest text-muted px-4 pb-2"
+          >
+            <span class="flex-1 pl-2">Rank / Player</span>
+            <button
+              id="toggle-all"
+              type="button"
+              class="inline-flex items-center gap-1 uppercase tracking-widest text-muted hover:text-fg transition-colors"
+            >
+              <span id="toggle-all-label">Expand all</span>
+              <svg
+                id="toggle-all-icon"
+                class="w-3 h-3 transition-transform"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <span class="flex-1 text-right pr-7">Points</span>
           </div>
-          <div class="px-4 py-3">
-            <div class="text-fg font-bold text-sm mb-2">Knockout stage</div>
-            <ul class="space-y-1 text-sm text-muted">
-              <li class="flex justify-between gap-4"><span>Win</span><span class="text-accent font-bold tabular-nums">3</span></li>
-              <li class="flex justify-between gap-4"><span>Shootout win</span><span class="text-accent font-bold tabular-nums">2</span></li>
-              <li class="flex justify-between gap-4"><span>Shootout loss</span><span class="text-accent font-bold tabular-nums">1</span></li>
-              <li class="flex justify-between gap-4"><span>Loss</span><span class="text-muted font-bold tabular-nums">0</span></li>
-            </ul>
+          <ol id="leaderboard" class="space-y-2">
+            <li
+              class="rounded-lg border border-border bg-surface px-4 py-6 text-muted text-sm cursor"
+            >
+              Fetching results from ESPN
+            </li>
+          </ol>
+        </main>
+      </div>
+      <!-- /panel-leaderboard -->
+
+      <!-- ── SCHEDULE PANEL ────────────────────────────────────────── -->
+      <div id="panel-schedule" class="hidden">
+        <div id="schedule" class="space-y-6">
+          <div
+            class="rounded-lg border border-border bg-surface px-4 py-6 text-muted text-sm cursor"
+          >
+            Fetching schedule from ESPN
           </div>
         </div>
-      </section>
+      </div>
+      <!-- /panel-schedule -->
 
-      <section class="mt-6 rounded-lg border border-border bg-surface overflow-hidden">
-        <div class="flex items-center gap-2 px-4 py-2 border-b border-border text-[11px] uppercase tracking-widest text-muted">
-          <span class="text-accent">#</span> Rankings &amp; Tiebreakers
-        </div>
-        <div class="px-4 py-3 text-sm text-muted space-y-3">
-          <p>Players are ranked by <span class="text-fg">total points</span>, summed across all six of their drafted countries.</p>
-          <p>When two or more players are tied on points, <span class="text-fg">goal difference</span> (total goals scored minus goals conceded across all of a player's countries) breaks the tie — higher wins.</p>
-          <p>If players are still level on both points and goal difference, they share the same rank.</p>
-          <p class="text-xs text-muted/80 italic">Points and goal difference both update live during in-progress matches, so rankings can shift in real time.</p>
-        </div>
-      </section>
-    </div><!-- /panel-rules -->
+      <!-- ── RULES PANEL ───────────────────────────────────────────── -->
+      <div id="panel-rules" class="hidden">
+        <section
+          class="rounded-lg border border-border bg-surface overflow-hidden"
+        >
+          <div
+            class="flex items-center gap-2 px-4 py-2 border-b border-border text-[11px] uppercase tracking-widest text-muted"
+          >
+            <span class="text-accent">#</span> Scoring
+          </div>
+          <div
+            class="grid sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border"
+          >
+            <div class="px-4 py-3">
+              <div class="text-fg font-bold text-sm mb-2">Group stage</div>
+              <ul class="space-y-1 text-sm text-muted">
+                <li class="flex justify-between gap-4">
+                  <span>Win</span
+                  ><span class="text-accent font-bold tabular-nums">3</span>
+                </li>
+                <li class="flex justify-between gap-4">
+                  <span>Draw</span
+                  ><span class="text-accent font-bold tabular-nums">1</span>
+                </li>
+                <li class="flex justify-between gap-4">
+                  <span>Loss</span
+                  ><span class="text-muted font-bold tabular-nums">0</span>
+                </li>
+              </ul>
+            </div>
+            <div class="px-4 py-3">
+              <div class="text-fg font-bold text-sm mb-2">Knockout stage</div>
+              <ul class="space-y-1 text-sm text-muted">
+                <li class="flex justify-between gap-4">
+                  <span>Win</span
+                  ><span class="text-accent font-bold tabular-nums">3</span>
+                </li>
+                <li class="flex justify-between gap-4">
+                  <span>Shootout win</span
+                  ><span class="text-accent font-bold tabular-nums">2</span>
+                </li>
+                <li class="flex justify-between gap-4">
+                  <span>Shootout loss</span
+                  ><span class="text-accent font-bold tabular-nums">1</span>
+                </li>
+                <li class="flex justify-between gap-4">
+                  <span>Loss</span
+                  ><span class="text-muted font-bold tabular-nums">0</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
 
-    <footer class="mt-12 pt-6 border-t border-border text-muted text-xs flex items-center justify-between">
-      <span>Updated <span id="updated" class="text-fg/70">—</span></span>
-      <span><span id="matchcount" class="text-fg/70">0</span> matches completed</span>
-    </footer>
-  </div>
+        <section
+          class="mt-6 rounded-lg border border-border bg-surface overflow-hidden"
+        >
+          <div
+            class="flex items-center gap-2 px-4 py-2 border-b border-border text-[11px] uppercase tracking-widest text-muted"
+          >
+            <span class="text-accent">#</span> Rankings &amp; Tiebreakers
+          </div>
+          <div class="px-4 py-3 text-sm text-muted space-y-3">
+            <p>
+              Players are ranked by <span class="text-fg">total points</span>,
+              summed across all six of their drafted countries.
+            </p>
+            <p>
+              When two or more players are tied on points,
+              <span class="text-fg">goal difference</span> (total goals scored
+              minus goals conceded across all of a player's countries) breaks
+              the tie — higher wins.
+            </p>
+            <p>
+              If players are still level on both points and goal difference,
+              they share the same rank.
+            </p>
+            <p class="text-xs text-muted/80 italic">
+              Points and goal difference both update live during in-progress
+              matches, so rankings can shift in real time.
+            </p>
+          </div>
+        </section>
+      </div>
+      <!-- /panel-rules -->
 
-  <script>
-  // ── The draft (who picked which countries) ──────────────────────────
-  const PLAYERS = {
-    "Troy":   ["France", "Colombia", "Türkiye", "Scotland", "Ghana", "Curaçao"],
-    "Chris":  ["Spain", "United States", "Croatia", "Czechia", "Tunisia", "New Zealand"],
-    "Caleb":  ["Brazil", "Norway", "Japan", "Algeria", "Australia", "Haiti"],
-    "Jeff":   ["Argentina", "Uruguay", "Senegal", "Egypt", "Panama", "Qatar"],
-    "Luke":   ["England", "Mexico", "Ecuador", "Iran", "Paraguay", "Iraq"],
-    "John":   ["Portugal", "Switzerland", "Canada", "Ivory Coast", "Saudi Arabia", "South Africa"],
-    "Gary":   ["Germany", "Morocco", "Sweden", "South Korea", "Congo DR", "Jordan"],
-    "Walker": ["Netherlands", "Belgium", "Austria", "Bosnia-Herzegovina", "Uzbekistan", "Cape Verde"],
-  };
+      <footer
+        class="mt-12 pt-6 border-t border-border text-muted text-xs flex items-center justify-between"
+      >
+        <span>Updated <span id="updated" class="text-fg/70">—</span></span>
+        <span
+          ><span id="matchcount" class="text-fg/70">0</span> matches
+          completed</span
+        >
+      </footer>
+    </div>
 
-  // ── FIFA World Ranking (June 2026, keyed by ESPN's official team names) ──
-  const RANK = {
-    "Argentina": 1, "Spain": 2, "France": 3, "England": 4, "Portugal": 5,
-    "Brazil": 6, "Netherlands": 7, "Morocco": 8, "Belgium": 9, "Germany": 10,
-    "Croatia": 11, "Colombia": 13, "Senegal": 14, "Mexico": 15, "United States": 16,
-    "Uruguay": 17, "Japan": 18, "Switzerland": 19, "Iran": 21, "Türkiye": 22,
-    "Ecuador": 23, "Austria": 24, "South Korea": 25, "Australia": 27, "Algeria": 28,
-    "Egypt": 29, "Canada": 30, "Norway": 31, "Panama": 33, "Ivory Coast": 34,
-    "Sweden": 38, "Paraguay": 40, "Czechia": 41, "Scotland": 43, "Tunisia": 44,
-    "Congo DR": 46, "Uzbekistan": 50, "Qatar": 55, "Iraq": 57, "South Africa": 60,
-    "Saudi Arabia": 61, "Jordan": 63, "Bosnia-Herzegovina": 65, "Cape Verde": 69, "Ghana": 74,
-    "Curaçao": 82, "Haiti": 83, "New Zealand": 85,
-  };
-  function rankBadge(draftTeam) {
-    const r = RANK[draftTeam];
-    return r ? `<span class="shrink-0 text-[10px] text-muted/60 tabular-nums" title="FIFA World Ranking">#${r}</span>` : "";
-  }
+    <script>
+      // ── The draft (who picked which countries) ──────────────────────────
+      const PLAYERS = {
+        Troy: ["France", "Colombia", "Türkiye", "Scotland", "Ghana", "Curaçao"],
+        Chris: [
+          "Spain",
+          "United States",
+          "Croatia",
+          "Czechia",
+          "Tunisia",
+          "New Zealand",
+        ],
+        Caleb: ["Brazil", "Norway", "Japan", "Algeria", "Australia", "Haiti"],
+        Jeff: ["Argentina", "Uruguay", "Senegal", "Egypt", "Panama", "Qatar"],
+        Luke: ["England", "Mexico", "Ecuador", "Iran", "Paraguay", "Iraq"],
+        John: [
+          "Portugal",
+          "Switzerland",
+          "Canada",
+          "Ivory Coast",
+          "Saudi Arabia",
+          "South Africa",
+        ],
+        Gary: [
+          "Germany",
+          "Morocco",
+          "Sweden",
+          "South Korea",
+          "Congo DR",
+          "Jordan",
+        ],
+        Walker: [
+          "Netherlands",
+          "Belgium",
+          "Austria",
+          "Bosnia-Herzegovina",
+          "Uzbekistan",
+          "Cape Verde",
+        ],
+      };
 
-  // 2026 World Cup runs Jun 11 – Jul 19. One request pulls the whole tournament.
-  const ESPN = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=20260611-20260719&limit=1000";
-
-  // ── Teams ────────────────────────────────────────────────────────────
-  // The draft uses ESPN's official display names verbatim, so resolving an
-  // ESPN team is a direct lookup — no alias/spelling translation needed.
-  // Bracket placeholder slots ("Group F 2nd Place", "Round of 16 1 Winner",
-  // …) aren't drafted teams, so they resolve to null and get ignored.
-  const draftTeams = [...new Set(Object.values(PLAYERS).flat())];
-  const TEAMS = new Set(draftTeams);
-  // team -> owning player
-  const OWNER = {};
-  for (const [player, teams] of Object.entries(PLAYERS)) teams.forEach(t => (OWNER[t] = player));
-  function toDraftTeam(espnName) {
-    return TEAMS.has(espnName) ? espnName : null;
-  }
-
-  // ── Scoring ──────────────────────────────────────────────────────────
-  // group: win 3 / draw 1 / loss 0.  knockout: win 3 / shootout win 2 / shootout loss 1 / loss 0.
-  function scoreEvents(events) {
-    const pts = {};
-    const live = {};          // draftTeam -> true if its current points come from an in-progress match
-    const eliminated = {};     // draftTeam -> true if knocked out of the tournament
-    const gp = {};             // draftTeam -> number of completed matches played
-    const gd = {};             // draftTeam -> goal difference (goals for - against)
-    let played = 0;
-    let liveCount = 0;
-    const add = (team, n, isLive) => {
-      if (!team) return;
-      pts[team] = (pts[team] || 0) + n;
-      if (isLive) live[team] = true;
-    };
-    const out = team => { if (team) eliminated[team] = true; };
-
-    // Teams ESPN has placed in the knockout bracket — i.e. they advanced out of their group.
-    // Unresolved slots use placeholder names ("Group F 2nd Place") that toDraftTeam maps to
-    // null, so only real, qualified teams land here. Includes fixtures not yet played.
-    const advanced = {};
-    for (const ev of events || []) {
-      if (!ev.season || ev.season.slug === "group-stage") continue;
-      const comps = (ev.competitions && ev.competitions[0] && ev.competitions[0].competitors) || [];
-      for (const comp of comps) {
-        const t = comp.team && toDraftTeam(comp.team.displayName);
-        if (t) advanced[t] = true;
+      // ── FIFA World Ranking (June 2026, keyed by ESPN's official team names) ──
+      const RANK = {
+        Argentina: 1,
+        Spain: 2,
+        France: 3,
+        England: 4,
+        Portugal: 5,
+        Brazil: 6,
+        Netherlands: 7,
+        Morocco: 8,
+        Belgium: 9,
+        Germany: 10,
+        Croatia: 11,
+        Colombia: 13,
+        Senegal: 14,
+        Mexico: 15,
+        "United States": 16,
+        Uruguay: 17,
+        Japan: 18,
+        Switzerland: 19,
+        Iran: 21,
+        Türkiye: 22,
+        Ecuador: 23,
+        Austria: 24,
+        "South Korea": 25,
+        Australia: 27,
+        Algeria: 28,
+        Egypt: 29,
+        Canada: 30,
+        Norway: 31,
+        Panama: 33,
+        "Ivory Coast": 34,
+        Sweden: 38,
+        Paraguay: 40,
+        Czechia: 41,
+        Scotland: 43,
+        Tunisia: 44,
+        "Congo DR": 46,
+        Uzbekistan: 50,
+        Qatar: 55,
+        Iraq: 57,
+        "South Africa": 60,
+        "Saudi Arabia": 61,
+        Jordan: 63,
+        "Bosnia-Herzegovina": 65,
+        "Cape Verde": 69,
+        Ghana: 74,
+        Curaçao: 82,
+        Haiti: 83,
+        "New Zealand": 85,
+      };
+      function rankBadge(draftTeam) {
+        const r = RANK[draftTeam];
+        return r
+          ? `<span class="shrink-0 text-[10px] text-muted/60 tabular-nums" title="FIFA World Ranking">#${r}</span>`
+          : "";
       }
-    }
 
-    for (const ev of events || []) {
-      const c = ev.competitions && ev.competitions[0];
-      const st = c && c.status && c.status.type;
-      if (!st) continue;
-      const completed = st.completed;
-      const inProgress = (c.status.type.state === "in") || st.state === "in";
-      // only count matches that are finished or currently being played
-      if (!completed && !inProgress) continue;
-      const home = c.competitors.find(x => x.homeAway === "home");
-      const away = c.competitors.find(x => x.homeAway === "away");
-      if (!home || !away) continue;
-      if (completed) played++;
-      if (inProgress) liveCount++;
+      // 2026 World Cup runs Jun 11 – Jul 19. One request pulls the whole tournament.
+      const ESPN =
+        "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=20260611-20260719&limit=1000";
 
-      const hTeam = toDraftTeam(home.team.displayName);
-      const aTeam = toDraftTeam(away.team.displayName);
-      if (completed) {
-        if (hTeam) gp[hTeam] = (gp[hTeam] || 0) + 1;
-        if (aTeam) gp[aTeam] = (gp[aTeam] || 0) + 1;
+      // ── Teams ────────────────────────────────────────────────────────────
+      // The draft uses ESPN's official display names verbatim, so resolving an
+      // ESPN team is a direct lookup — no alias/spelling translation needed.
+      // Bracket placeholder slots ("Group F 2nd Place", "Round of 16 1 Winner",
+      // …) aren't drafted teams, so they resolve to null and get ignored.
+      const draftTeams = [...new Set(Object.values(PLAYERS).flat())];
+      const TEAMS = new Set(draftTeams);
+      // team -> owning player
+      const OWNER = {};
+      for (const [player, teams] of Object.entries(PLAYERS))
+        teams.forEach((t) => (OWNER[t] = player));
+      function toDraftTeam(espnName) {
+        return TEAMS.has(espnName) ? espnName : null;
       }
-      const hScore = Number(home.score), aScore = Number(away.score);
-      // goal difference (used only as a tiebreaker); includes live matches
-      if (Number.isFinite(hScore) && Number.isFinite(aScore)) {
-        if (hTeam) gd[hTeam] = (gd[hTeam] || 0) + (hScore - aScore);
-        if (aTeam) gd[aTeam] = (gd[aTeam] || 0) + (aScore - hScore);
+
+      // ── Scoring ──────────────────────────────────────────────────────────
+      // group: win 3 / draw 1 / loss 0.  knockout: win 3 / shootout win 2 / shootout loss 1 / loss 0.
+      function scoreEvents(events) {
+        const pts = {};
+        const live = {}; // draftTeam -> true if its current points come from an in-progress match
+        const eliminated = {}; // draftTeam -> true if knocked out of the tournament
+        const gp = {}; // draftTeam -> number of completed matches played
+        const gd = {}; // draftTeam -> goal difference (goals for - against)
+        let played = 0;
+        let liveCount = 0;
+        const add = (team, n, isLive) => {
+          if (!team) return;
+          pts[team] = (pts[team] || 0) + n;
+          if (isLive) live[team] = true;
+        };
+        const out = (team) => {
+          if (team) eliminated[team] = true;
+        };
+
+        // Teams ESPN has placed in the knockout bracket — i.e. they advanced out of their group.
+        // Unresolved slots use placeholder names ("Group F 2nd Place") that toDraftTeam maps to
+        // null, so only real, qualified teams land here. Includes fixtures not yet played.
+        const advanced = {};
+        for (const ev of events || []) {
+          if (!ev.season || ev.season.slug === "group-stage") continue;
+          const comps =
+            (ev.competitions &&
+              ev.competitions[0] &&
+              ev.competitions[0].competitors) ||
+            [];
+          for (const comp of comps) {
+            const t = comp.team && toDraftTeam(comp.team.displayName);
+            if (t) advanced[t] = true;
+          }
+        }
+
+        for (const ev of events || []) {
+          const c = ev.competitions && ev.competitions[0];
+          const st = c && c.status && c.status.type;
+          if (!st) continue;
+          const completed = st.completed;
+          const inProgress = c.status.type.state === "in" || st.state === "in";
+          // only count matches that are finished or currently being played
+          if (!completed && !inProgress) continue;
+          const home = c.competitors.find((x) => x.homeAway === "home");
+          const away = c.competitors.find((x) => x.homeAway === "away");
+          if (!home || !away) continue;
+          if (completed) played++;
+          if (inProgress) liveCount++;
+
+          const hTeam = toDraftTeam(home.team.displayName);
+          const aTeam = toDraftTeam(away.team.displayName);
+          if (completed) {
+            if (hTeam) gp[hTeam] = (gp[hTeam] || 0) + 1;
+            if (aTeam) gp[aTeam] = (gp[aTeam] || 0) + 1;
+          }
+          const hScore = Number(home.score),
+            aScore = Number(away.score);
+          // goal difference (used only as a tiebreaker); includes live matches
+          if (Number.isFinite(hScore) && Number.isFinite(aScore)) {
+            if (hTeam) gd[hTeam] = (gd[hTeam] || 0) + (hScore - aScore);
+            if (aTeam) gd[aTeam] = (gd[aTeam] || 0) + (aScore - hScore);
+          }
+          const isGroup = (ev.season && ev.season.slug) === "group-stage";
+          const wentToPens =
+            home.shootoutScore != null ||
+            away.shootoutScore != null ||
+            c.status.type.name === "STATUS_FINAL_PEN";
+
+          if (isGroup) {
+            if (hScore > aScore) {
+              add(hTeam, 3, inProgress);
+              add(aTeam, 0, inProgress);
+            } else if (hScore < aScore) {
+              add(hTeam, 0, inProgress);
+              add(aTeam, 3, inProgress);
+            } else {
+              add(hTeam, 1, inProgress);
+              add(aTeam, 1, inProgress);
+            }
+          } else {
+            // knockout: figure out who advanced (provisional while live, by current score)
+            let homeAdvanced;
+            if (home.winner === true) homeAdvanced = true;
+            else if (away.winner === true) homeAdvanced = false;
+            else if (wentToPens)
+              homeAdvanced =
+                Number(home.shootoutScore) > Number(away.shootoutScore);
+            else homeAdvanced = hScore > aScore;
+
+            if (inProgress && hScore === aScore) {
+              // tied live knockout: winner undecided, so award no points yet — but still
+              // flag both teams as live (0 pts) so the leaderboard shows the match in
+              // progress, the same way the Schedule tab marks it live. Without this, a
+              // level live knockout (e.g. 0-0 at kickoff) would vanish from the leaderboard.
+              add(hTeam, 0, inProgress);
+              add(aTeam, 0, inProgress);
+            } else if (homeAdvanced) {
+              add(hTeam, wentToPens ? 2 : 3, inProgress);
+              add(aTeam, wentToPens ? 1 : 0, inProgress);
+            } else {
+              add(aTeam, wentToPens ? 2 : 3, inProgress);
+              add(hTeam, wentToPens ? 1 : 0, inProgress);
+            }
+
+            // a finished knockout match eliminates the side that didn't advance
+            if (completed && !inProgress) out(homeAdvanced ? aTeam : hTeam);
+          }
+        }
+
+        // ── Group-stage elimination ──────────────────────────────────────
+        // Build final group tables so we can tell 4th place (eliminated for good) apart from 3rd
+        // place (still alive as a possible best third). The last group round kicks off at the same
+        // time, so once a team has played 3 games its group table is final.
+        const groupTable = {}; // group letter -> { draftTeam -> { pts, gd, gf, gp } }
+        for (const ev of events || []) {
+          if (!ev.season || ev.season.slug !== "group-stage") continue;
+          const c = ev.competitions && ev.competitions[0];
+          if (!c || !c.status || !c.status.type || !c.status.type.completed)
+            continue;
+          const m = (c.altGameNote || ev.name || "").match(/Group\s+([A-Z])/i);
+          if (!m) continue;
+          const home = c.competitors.find((x) => x.homeAway === "home");
+          const away = c.competitors.find((x) => x.homeAway === "away");
+          if (!home || !away) continue;
+          const hs = Number(home.score),
+            as = Number(away.score);
+          if (!Number.isFinite(hs) || !Number.isFinite(as)) continue;
+          const tbl = (groupTable[m[1].toUpperCase()] =
+            groupTable[m[1].toUpperCase()] || {});
+          for (const [side, gf, ga] of [
+            [home, hs, as],
+            [away, as, hs],
+          ]) {
+            const team = toDraftTeam(side.team.displayName);
+            if (!team) continue;
+            const row = (tbl[team] = tbl[team] || {
+              pts: 0,
+              gd: 0,
+              gf: 0,
+              gp: 0,
+            });
+            row.gp++;
+            row.gf += gf;
+            row.gd += gf - ga;
+            row.pts += gf > ga ? 3 : gf === ga ? 1 : 0;
+          }
+        }
+        // when every group game is done, ESPN has placed the 8 best third-place teams in the bracket
+        const groupStageDone = (events || []).every(
+          (ev) =>
+            !ev.season ||
+            ev.season.slug !== "group-stage" ||
+            (ev.competitions &&
+              ev.competitions[0] &&
+              ev.competitions[0].status &&
+              ev.competitions[0].status.type &&
+              ev.competitions[0].status.type.completed),
+        );
+        for (const g of Object.keys(groupTable)) {
+          const rows = Object.entries(groupTable[g]).sort(
+            (a, b) =>
+              b[1].pts - a[1].pts || b[1].gd - a[1].gd || b[1].gf - a[1].gf,
+          );
+          if (rows.length < 4 || !rows.every(([, r]) => r.gp >= 3)) continue; // group not finished yet
+          rows.forEach(([team], i) => {
+            if (advanced[team]) return; // already in the bracket → safe
+            const place = i + 1;
+            if (place === 4)
+              eliminated[team] = true; // last place: out for good
+            else if (place === 3 && groupStageDone) eliminated[team] = true; // third that missed the best-8
+          });
+        }
+
+        return {
+          pts,
+          played,
+          live,
+          liveCount,
+          eliminated,
+          gp,
+          gd,
+          totalMatches: (events || []).length,
+        };
       }
-      const isGroup = (ev.season && ev.season.slug) === "group-stage";
-      const wentToPens = home.shootoutScore != null || away.shootoutScore != null
-        || c.status.type.name === "STATUS_FINAL_PEN";
 
-      if (isGroup) {
-        if (hScore > aScore) { add(hTeam, 3, inProgress); add(aTeam, 0, inProgress); }
-        else if (hScore < aScore) { add(hTeam, 0, inProgress); add(aTeam, 3, inProgress); }
-        else { add(hTeam, 1, inProgress); add(aTeam, 1, inProgress); }
-      } else {
-        // knockout: figure out who advanced (provisional while live, by current score)
-        let homeAdvanced;
-        if (home.winner === true) homeAdvanced = true;
-        else if (away.winner === true) homeAdvanced = false;
-        else if (wentToPens) homeAdvanced = Number(home.shootoutScore) > Number(away.shootoutScore);
-        else homeAdvanced = hScore > aScore;
+      // ── Render ─────────────────────────────────────────────────────────
+      const $lb = document.getElementById("leaderboard");
+      const medal = ["text-accent", "text-fg", "text-amber-700"];
+      const expanded = new Set(); // player names whose card is expanded (cards are collapsed by default)
 
-        if (inProgress && hScore === aScore) {
-          // tied live knockout: outcome undecided, award nothing yet
-        } else if (homeAdvanced) { add(hTeam, wentToPens ? 2 : 3, inProgress); add(aTeam, wentToPens ? 1 : 0, inProgress); }
-        else { add(aTeam, wentToPens ? 2 : 3, inProgress); add(hTeam, wentToPens ? 1 : 0, inProgress); }
+      function render({
+        pts,
+        played,
+        live = {},
+        liveCount = 0,
+        eliminated = {},
+        gp = {},
+        gd = {},
+        totalMatches = 0,
+      }) {
+        const ranked = Object.entries(PLAYERS)
+          .map(([name, teams]) => {
+            const roster = teams.map((t) => [t, pts[t] || 0]);
+            const remaining = teams.filter((t) => !eliminated[t]).length;
+            const liveGames = teams.filter((t) => live[t]).length;
+            const games =
+              teams.reduce((s, t) => s + (gp[t] || 0), 0) + liveGames;
+            const goalDiff = teams.reduce((s, t) => s + (gd[t] || 0), 0);
+            return {
+              name,
+              teams: roster,
+              total: roster.reduce((s, [, n]) => s + n, 0),
+              remaining,
+              squad: teams.length,
+              games,
+              liveGames,
+              goalDiff,
+            };
+          })
+          .sort(
+            (a, b) =>
+              b.total - a.total ||
+              b.goalDiff - a.goalDiff ||
+              a.name.localeCompare(b.name),
+          );
 
-        // a finished knockout match eliminates the side that didn't advance
-        if (completed && !inProgress) out(homeAdvanced ? aTeam : hTeam);
-      }
-    }
+        // tie-aware ranks: players level on points AND goal difference share a rank (e.g. T3)
+        ranked.forEach((p, i) => {
+          const prev = ranked[i - 1];
+          p.rank =
+            prev && prev.total === p.total && prev.goalDiff === p.goalDiff
+              ? prev.rank
+              : i + 1;
+        });
+        const tiedRanks = {};
+        ranked.forEach(
+          (p) => (tiedRanks[p.rank] = (tiedRanks[p.rank] || 0) + 1),
+        );
 
-    // ── Group-stage elimination ──────────────────────────────────────
-    // Build final group tables so we can tell 4th place (eliminated for good) apart from 3rd
-    // place (still alive as a possible best third). The last group round kicks off at the same
-    // time, so once a team has played 3 games its group table is final.
-    const groupTable = {};   // group letter -> { draftTeam -> { pts, gd, gf, gp } }
-    for (const ev of events || []) {
-      if (!ev.season || ev.season.slug !== "group-stage") continue;
-      const c = ev.competitions && ev.competitions[0];
-      if (!c || !c.status || !c.status.type || !c.status.type.completed) continue;
-      const m = (c.altGameNote || ev.name || "").match(/Group\s+([A-Z])/i);
-      if (!m) continue;
-      const home = c.competitors.find(x => x.homeAway === "home");
-      const away = c.competitors.find(x => x.homeAway === "away");
-      if (!home || !away) continue;
-      const hs = Number(home.score), as = Number(away.score);
-      if (!Number.isFinite(hs) || !Number.isFinite(as)) continue;
-      const tbl = groupTable[m[1].toUpperCase()] = groupTable[m[1].toUpperCase()] || {};
-      for (const [side, gf, ga] of [[home, hs, as], [away, as, hs]]) {
-        const team = toDraftTeam(side.team.displayName);
-        if (!team) continue;
-        const row = tbl[team] = tbl[team] || { pts: 0, gd: 0, gf: 0, gp: 0 };
-        row.gp++; row.gf += gf; row.gd += gf - ga;
-        row.pts += gf > ga ? 3 : gf === ga ? 1 : 0;
-      }
-    }
-    // when every group game is done, ESPN has placed the 8 best third-place teams in the bracket
-    const groupStageDone = (events || []).every(ev =>
-      !ev.season || ev.season.slug !== "group-stage" ||
-      (ev.competitions && ev.competitions[0] && ev.competitions[0].status
-        && ev.competitions[0].status.type && ev.competitions[0].status.type.completed));
-    for (const g of Object.keys(groupTable)) {
-      const rows = Object.entries(groupTable[g])
-        .sort((a, b) => b[1].pts - a[1].pts || b[1].gd - a[1].gd || b[1].gf - a[1].gf);
-      if (rows.length < 4 || !rows.every(([, r]) => r.gp >= 3)) continue;   // group not finished yet
-      rows.forEach(([team], i) => {
-        if (advanced[team]) return;                                   // already in the bracket → safe
-        const place = i + 1;
-        if (place === 4) eliminated[team] = true;                     // last place: out for good
-        else if (place === 3 && groupStageDone) eliminated[team] = true; // third that missed the best-8
-      });
-    }
-
-    return { pts, played, live, liveCount, eliminated, gp, gd, totalMatches: (events || []).length };
-  }
-
-  // ── Render ─────────────────────────────────────────────────────────
-  const $lb = document.getElementById("leaderboard");
-  const medal = ["text-accent", "text-fg", "text-amber-700"];
-  const expanded = new Set();   // player names whose card is expanded (cards are collapsed by default)
-
-  function render({ pts, played, live = {}, liveCount = 0, eliminated = {}, gp = {}, gd = {}, totalMatches = 0 }) {
-    const ranked = Object.entries(PLAYERS).map(([name, teams]) => {
-      const roster = teams.map(t => [t, pts[t] || 0]);
-      const remaining = teams.filter(t => !eliminated[t]).length;
-      const liveGames = teams.filter(t => live[t]).length;
-      const games = teams.reduce((s, t) => s + (gp[t] || 0), 0) + liveGames;
-      const goalDiff = teams.reduce((s, t) => s + (gd[t] || 0), 0);
-      return { name, teams: roster, total: roster.reduce((s, [, n]) => s + n, 0), remaining, squad: teams.length, games, liveGames, goalDiff };
-    }).sort((a, b) => b.total - a.total || b.goalDiff - a.goalDiff || a.name.localeCompare(b.name));
-
-    // tie-aware ranks: players level on points AND goal difference share a rank (e.g. T3)
-    ranked.forEach((p, i) => {
-      const prev = ranked[i - 1];
-      p.rank = (prev && prev.total === p.total && prev.goalDiff === p.goalDiff) ? prev.rank : i + 1;
-    });
-    const tiedRanks = {};
-    ranked.forEach(p => (tiedRanks[p.rank] = (tiedRanks[p.rank] || 0) + 1));
-
-    $lb.innerHTML = ranked.map((p, i) => {
-      const rank = p.rank;
-      const tied = tiedRanks[rank] > 1;
-      const leader = rank === 1 && p.total > 0;
-      const tags = p.teams.slice().sort((a, b) => b[1] - a[1] || (gd[b[0]] || 0) - (gd[a[0]] || 0)).map(([name, n]) => {
-        const isLive = live[name];
-        const isOut = eliminated[name];
-        const games = (gp[name] || 0) + (isLive ? 1 : 0);
-        const teamGd = gd[name] || 0;
-        const gdStr = teamGd > 0 ? "+" + teamGd : "" + teamGd;
-        return `
+        $lb.innerHTML = ranked
+          .map((p, i) => {
+            const rank = p.rank;
+            const tied = tiedRanks[rank] > 1;
+            const leader = rank === 1 && p.total > 0;
+            const tags = p.teams
+              .slice()
+              .sort(
+                (a, b) =>
+                  (eliminated[a[0]] ? 1 : 0) - (eliminated[b[0]] ? 1 : 0) ||
+                  b[1] - a[1] ||
+                  (gd[b[0]] || 0) - (gd[a[0]] || 0),
+              )
+              .map(([name, n]) => {
+                const isLive = live[name];
+                const isOut = eliminated[name];
+                const games = (gp[name] || 0) + (isLive ? 1 : 0);
+                const teamGd = gd[name] || 0;
+                const gdStr = teamGd > 0 ? "+" + teamGd : "" + teamGd;
+                return `
         <div class="flex items-center gap-3 py-2 ${isOut ? "opacity-40" : ""}">
+          <span class="w-7 shrink-0 flex items-center justify-center" title="${isLive ? "live" : ""}">
+            <span class="w-1.5 h-1.5 rounded-full ${isLive ? "bg-red-500 animate-pulse" : ""}"></span>
+          </span>
           <div class="flex items-center gap-1.5 min-w-0 flex-1">
-            ${isLive ? `<span class="inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shrink-0" title="live"></span>` : ""}
             <span class="truncate text-sm ${isOut ? "text-fg/60 line-through" : "text-fg/90"}" title="${name}">${name}</span>
             ${rankBadge(name)}
           </div>
           <span class="shrink-0 w-10 text-right text-[10px] uppercase tracking-widest tabular-nums ${isLive ? "text-red-400" : "text-muted/70"}" title="${isLive ? "Games played (includes live match)" : "Games played"}">${games} GP</span>
           <span class="shrink-0 w-12 text-right text-[10px] uppercase tracking-widest tabular-nums text-muted/70" title="Goal difference">${gdStr} GD</span>
-          <span class="shrink-0 w-8 text-right font-bold tabular-nums ${n > 0 ? "text-accent" : "text-muted"}">${n > 0 ? "+" + n : "0"}</span>
+          <div class="shrink-0 flex items-baseline gap-1">
+            <span class="w-8 text-right font-bold tabular-nums ${n > 0 ? "text-accent" : "text-muted"}">${n > 0 ? "+" + n : "0"}</span>
+            <span class="text-[10px] uppercase tracking-widest invisible" aria-hidden="true">pts</span>
+          </div>
+          <span class="w-4 shrink-0" aria-hidden="true"></span>
         </div>`;
-      }).join("");
-      const remColor = p.remaining === 0 ? "text-muted" : p.remaining <= 2 ? "text-red-400" : "text-fg/70";
-      return `
+              })
+              .join("");
+            const remColor =
+              p.remaining === 0
+                ? "text-muted"
+                : p.remaining <= 2
+                  ? "text-red-400"
+                  : "text-fg/70";
+            return `
         <li class="rounded-lg border border-border bg-surface ${leader ? "glow" : ""} overflow-hidden">
           <details data-player="${p.name}"${expanded.has(p.name) ? " open" : ""}>
             <summary class="flex items-center gap-3 px-3 sm:px-4 py-2.5 cursor-pointer select-none hover:bg-surface2/60 transition-colors">
               <span class="w-7 shrink-0 text-center text-lg font-extrabold ${medal[rank - 1] || "text-muted"}">${tied ? "T" + rank : rank}</span>
-              <span class="w-14 shrink-0 font-bold truncate">${p.name}</span>
-              <div class="shrink-0 flex items-center gap-2 text-[10px] uppercase tracking-widest text-muted">
-                <span class="${p.liveGames > 0 ? "text-red-400" : ""}" title="Games played by this player's teams${p.liveGames > 0 ? " (includes live matches)" : ""}">${p.games} GP</span>
-                <span class="text-border">·</span>
-                <span title="Goal difference (tiebreaker)">${p.goalDiff > 0 ? "+" + p.goalDiff : p.goalDiff} GD</span>
-                <span class="text-border">·</span>
-                <span class="${remColor}" title="Teams still alive in the tournament">${p.remaining} left</span>
-                ${p.liveGames > 0 ? `<span class="text-border">·</span><span class="text-red-400" title="Teams currently in play">${p.liveGames} live</span>` : ""}
-              </div>
-              <div class="ml-auto shrink-0 flex items-baseline gap-1">
-                <span class="text-xl font-extrabold leading-none ${p.total > 0 ? "text-accent" : "text-muted"} tabular-nums">${p.total}</span>
+              <span class="w-14 min-w-0 truncate font-bold">${p.name}</span>
+              <span class="shrink-0 text-[10px] uppercase tracking-widest ${remColor}" title="Teams still alive in the tournament">${p.remaining} alive</span>
+              <span class="ml-auto shrink-0 w-10 text-right text-[10px] uppercase tracking-widest tabular-nums ${p.liveGames > 0 ? "text-red-400" : "text-muted"}" title="Games played by this player's teams${p.liveGames > 0 ? " (includes live matches)" : ""}">${p.games} GP</span>
+              <span class="shrink-0 w-12 text-right text-[10px] uppercase tracking-widest tabular-nums text-muted" title="Goal difference (tiebreaker)">${p.goalDiff > 0 ? "+" + p.goalDiff : p.goalDiff} GD</span>
+              <div class="shrink-0 flex items-baseline gap-1">
+                <span class="w-8 text-right text-xl font-extrabold leading-none ${p.total > 0 ? "text-accent" : "text-muted"} tabular-nums">${p.total}</span>
                 <span class="text-[10px] uppercase tracking-widest text-muted">pts</span>
               </div>
               <svg class="chevron shrink-0 w-4 h-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -381,77 +689,112 @@
             <div class="border-t border-border/60 px-3 sm:px-4 divide-y divide-border/60">${tags}</div>
           </details>
         </li>`;
-    }).join("");
+          })
+          .join("");
 
-    document.getElementById("updated").textContent = new Date().toLocaleString(undefined,
-      { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
-    document.getElementById("matchcount").textContent = totalMatches ? `${played}/${totalMatches}` : played;
-  }
+        document.getElementById("updated").textContent =
+          new Date().toLocaleString(undefined, {
+            month: "short",
+            day: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+          });
+        document.getElementById("matchcount").textContent = totalMatches
+          ? `${played}/${totalMatches}`
+          : played;
+      }
 
-  // ── Schedule render ───────────────────────────────────────────────
-  const $sched = document.getElementById("schedule");
+      // ── Schedule render ───────────────────────────────────────────────
+      const $sched = document.getElementById("schedule");
 
-  function ownerTag(draftTeam) {
-    if (!draftTeam) return "";
-    return `<span class="text-[10px] uppercase tracking-widest text-accent border border-accentdim rounded px-1.5 py-0.5">${OWNER[draftTeam]}</span>`;
-  }
+      function ownerTag(draftTeam) {
+        if (!draftTeam) return "";
+        return `<span class="text-[10px] uppercase tracking-widest text-accent border border-accentdim rounded px-1.5 py-0.5">${OWNER[draftTeam]}</span>`;
+      }
 
-  function renderSchedule(events) {
-    const sorted = (events || []).slice().sort((a, b) => new Date(a.date) - new Date(b.date));
-    // order: today through the end of the tournament first, then the first day through yesterday
-    const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0);
-    const evs = sorted.filter(e => new Date(e.date) >= startOfToday)
-      .concat(sorted.filter(e => new Date(e.date) < startOfToday));
-    if (!evs.length) {
-      $sched.innerHTML = `<div class="rounded-lg border border-border bg-surface px-4 py-6 text-muted text-sm">No matches found.</div>`;
-      return;
-    }
+      function renderSchedule(events) {
+        const sorted = (events || [])
+          .slice()
+          .sort((a, b) => new Date(a.date) - new Date(b.date));
+        // order: today through the end of the tournament first, then the first day through yesterday
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+        const evs = sorted
+          .filter((e) => new Date(e.date) >= startOfToday)
+          .concat(sorted.filter((e) => new Date(e.date) < startOfToday));
+        if (!evs.length) {
+          $sched.innerHTML = `<div class="rounded-lg border border-border bg-surface px-4 py-6 text-muted text-sm">No matches found.</div>`;
+          return;
+        }
 
-    // group matches by calendar day
-    const groups = [];
-    const idx = {};
-    for (const ev of evs) {
-      const d = new Date(ev.date);
-      const key = d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
-      if (!(key in idx)) { idx[key] = groups.length; groups.push({ key, items: [] }); }
-      groups[idx[key]].items.push(ev);
-    }
+        // group matches by calendar day
+        const groups = [];
+        const idx = {};
+        for (const ev of evs) {
+          const d = new Date(ev.date);
+          const key = d.toLocaleDateString(undefined, {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+          });
+          if (!(key in idx)) {
+            idx[key] = groups.length;
+            groups.push({ key, items: [] });
+          }
+          groups[idx[key]].items.push(ev);
+        }
 
-    $sched.innerHTML = groups.map(g => {
-      const rows = g.items.map(ev => {
-        const c = ev.competitions && ev.competitions[0];
-        if (!c) return "";
-        const home = c.competitors.find(x => x.homeAway === "home") || c.competitors[0];
-        const away = c.competitors.find(x => x.homeAway === "away") || c.competitors[1];
-        if (!home || !away) return "";
+        $sched.innerHTML = groups
+          .map((g) => {
+            const rows = g.items
+              .map((ev) => {
+                const c = ev.competitions && ev.competitions[0];
+                if (!c) return "";
+                const home =
+                  c.competitors.find((x) => x.homeAway === "home") ||
+                  c.competitors[0];
+                const away =
+                  c.competitors.find((x) => x.homeAway === "away") ||
+                  c.competitors[1];
+                if (!home || !away) return "";
 
-        const st = c.status && c.status.type;
-        const completed = st && st.completed;
-        const inProgress = st && st.state === "in";
-        const hName = home.team.displayName, aName = away.team.displayName;
-        const hDraft = toDraftTeam(hName), aDraft = toDraftTeam(aName);
-        // leaderboard (draft) spelling is the source of truth for display
-        const hLabel = hDraft || hName, aLabel = aDraft || aName;
+                const st = c.status && c.status.type;
+                const completed = st && st.completed;
+                const inProgress = st && st.state === "in";
+                const hName = home.team.displayName,
+                  aName = away.team.displayName;
+                const hDraft = toDraftTeam(hName),
+                  aDraft = toDraftTeam(aName);
+                // leaderboard (draft) spelling is the source of truth for display
+                const hLabel = hDraft || hName,
+                  aLabel = aDraft || aName;
 
-        // center: score (final/live) or kickoff time (scheduled)
-        let center;
-        if (completed || inProgress) {
-          const live = inProgress ? `<span class="text-[10px] text-red-400 uppercase tracking-widest">${st.shortDetail || "live"}</span>` : "";
-          const pens = (home.shootoutScore != null || away.shootoutScore != null)
-            ? `<div class="text-[10px] text-muted">(${home.shootoutScore}-${away.shootoutScore} pens)</div>` : "";
-          center = `<div class="text-center">
+                // center: score (final/live) or kickoff time (scheduled)
+                let center;
+                if (completed || inProgress) {
+                  const live = inProgress
+                    ? `<span class="text-[10px] text-red-400 uppercase tracking-widest">${st.shortDetail || "live"}</span>`
+                    : "";
+                  const pens =
+                    home.shootoutScore != null || away.shootoutScore != null
+                      ? `<div class="text-[10px] text-muted">(${home.shootoutScore}-${away.shootoutScore} pens)</div>`
+                      : "";
+                  center = `<div class="text-center">
               <div class="text-base font-extrabold tabular-nums">${home.score} <span class="text-muted">–</span> ${away.score}</div>
               ${pens}${live || `<div class="text-[10px] text-muted uppercase tracking-widest">final</div>`}
             </div>`;
-        } else {
-          const t = new Date(ev.date).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
-          center = `<div class="text-center text-xs text-muted tabular-nums">${t}</div>`;
-        }
+                } else {
+                  const t = new Date(ev.date).toLocaleTimeString(undefined, {
+                    hour: "numeric",
+                    minute: "2-digit",
+                  });
+                  center = `<div class="text-center text-xs text-muted tabular-nums">${t}</div>`;
+                }
 
-        const hWin = completed && home.winner === true;
-        const aWin = completed && away.winner === true;
+                const hWin = completed && home.winner === true;
+                const aWin = completed && away.winner === true;
 
-        return `
+                return `
           <div class="flex items-center gap-3 px-4 py-3 ${inProgress ? "border border-red-500/70 bg-red-500/5 rounded-md" : ""}">
             <div class="flex-1 text-right min-w-0">
               <div class="flex items-center justify-end gap-1.5">
@@ -469,101 +812,120 @@
               ${aDraft ? `<div class="mt-0.5">${ownerTag(aDraft)}</div>` : ""}
             </div>
           </div>`;
-      }).join("");
+              })
+              .join("");
 
-      return `
+            return `
         <section class="rounded-lg border border-border bg-surface overflow-hidden">
           <div class="px-4 py-2 border-b border-border text-[11px] uppercase tracking-widest text-muted">${g.key}</div>
           <div class="divide-y divide-border">${rows}</div>
         </section>`;
-    }).join("");
-  }
+          })
+          .join("");
+      }
 
-  function showError(msg) {
-    const html = `
+      function showError(msg) {
+        const html = `
       <div class="rounded-lg border border-red-900/60 bg-surface px-4 py-5 text-sm">
         <div class="text-red-400 font-bold mb-1">Couldn't load results</div>
         <div class="text-muted">${msg}</div>
         <div class="text-muted mt-2">Check your internet connection — will retry automatically.</div>
       </div>`;
-    $lb.innerHTML = `<li>${html}</li>`;
-    $sched.innerHTML = html;
-  }
+        $lb.innerHTML = `<li>${html}</li>`;
+        $sched.innerHTML = html;
+      }
 
-  const $status = document.getElementById("status");
-  const $statusText = document.getElementById("status-text");
-  let loading = false;
-  async function load() {
-    if (loading) return;
-    loading = true;
-    if ($statusText) $statusText.textContent = "updating";
-    if ($status) $status.classList.add("text-accent");
-    try {
-      const res = await fetch(ESPN + "&_=" + Date.now());
-      if (!res.ok) throw new Error("ESPN responded " + res.status);
-      const data = await res.json();
-      render(scoreEvents(data.events));
-      renderSchedule(data.events);
-      if ($statusText) $statusText.textContent = "live";
-    } catch (e) {
-      showError(e.message);
-      if ($statusText) $statusText.textContent = "retrying";
-    } finally {
-      loading = false;
-      if ($status) $status.classList.remove("text-accent");
-    }
-  }
+      const $status = document.getElementById("status");
+      const $statusText = document.getElementById("status-text");
+      let loading = false;
+      async function load() {
+        if (loading) return;
+        loading = true;
+        if ($statusText) $statusText.textContent = "updating";
+        if ($status) $status.classList.add("text-accent");
+        try {
+          const res = await fetch(ESPN + "&_=" + Date.now());
+          if (!res.ok) throw new Error("ESPN responded " + res.status);
+          const data = await res.json();
+          render(scoreEvents(data.events));
+          renderSchedule(data.events);
+          if ($statusText) $statusText.textContent = "live";
+        } catch (e) {
+          showError(e.message);
+          if ($statusText) $statusText.textContent = "retrying";
+        } finally {
+          loading = false;
+          if ($status) $status.classList.remove("text-accent");
+        }
+      }
 
-  // refresh automatically every minute, and again when the tab regains focus
-  setInterval(load, 60000);
-  document.addEventListener("visibilitychange", () => { if (!document.hidden) load(); });
+      // refresh automatically every minute, and again when the tab regains focus
+      setInterval(load, 60000);
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) load();
+      });
 
-  // ── Tab switching ─────────────────────────────────────────────────
-  const tabBtns = document.querySelectorAll(".tab-btn");
-  const panels = {
-    leaderboard: document.getElementById("panel-leaderboard"),
-    schedule: document.getElementById("panel-schedule"),
-    rules: document.getElementById("panel-rules"),
-  };
-  tabBtns.forEach(btn => btn.addEventListener("click", () => {
-    const tab = btn.dataset.tab;
-    tabBtns.forEach(b => {
-      const active = b === btn;
-      b.classList.toggle("border-accent", active);
-      b.classList.toggle("text-fg", active);
-      b.classList.toggle("border-transparent", !active);
-      b.classList.toggle("text-muted", !active);
-    });
-    for (const [name, el] of Object.entries(panels)) el.classList.toggle("hidden", name !== tab);
-  }));
+      // ── Tab switching ─────────────────────────────────────────────────
+      const tabBtns = document.querySelectorAll(".tab-btn");
+      const panels = {
+        leaderboard: document.getElementById("panel-leaderboard"),
+        schedule: document.getElementById("panel-schedule"),
+        rules: document.getElementById("panel-rules"),
+      };
+      tabBtns.forEach((btn) =>
+        btn.addEventListener("click", () => {
+          const tab = btn.dataset.tab;
+          tabBtns.forEach((b) => {
+            const active = b === btn;
+            b.classList.toggle("border-accent", active);
+            b.classList.toggle("text-fg", active);
+            b.classList.toggle("border-transparent", !active);
+            b.classList.toggle("text-muted", !active);
+          });
+          for (const [name, el] of Object.entries(panels))
+            el.classList.toggle("hidden", name !== tab);
+        }),
+      );
 
-  // ── Collapse / expand player cards ────────────────────────────────
-  // Cards use <details>; the open set persists across the minute-by-minute re-render.
-  const $toggleAll = document.getElementById("toggle-all");
-  const $toggleAllLabel = document.getElementById("toggle-all-label");
-  const $toggleAllIcon = document.getElementById("toggle-all-icon");
-  const playerNames = Object.keys(PLAYERS);
-  function syncToggleAll() {
-    const allOpen = playerNames.length > 0 && playerNames.every(n => expanded.has(n));
-    if ($toggleAllLabel) $toggleAllLabel.textContent = allOpen ? "Collapse all" : "Expand all";
-    if ($toggleAllIcon) $toggleAllIcon.classList.toggle("rotate-180", allOpen);
-  }
-  // a <details> toggle event doesn't bubble, so catch it on the list during the capture phase
-  $lb.addEventListener("toggle", e => {
-    const d = e.target;
-    if (!d || d.tagName !== "DETAILS" || !d.dataset.player) return;
-    if (d.open) expanded.add(d.dataset.player); else expanded.delete(d.dataset.player);
-    syncToggleAll();
-  }, true);
-  if ($toggleAll) $toggleAll.addEventListener("click", () => {
-    const expand = playerNames.some(n => !expanded.has(n));   // any collapsed -> expand all, else collapse all
-    if (expand) playerNames.forEach(n => expanded.add(n)); else expanded.clear();
-    $lb.querySelectorAll("details[data-player]").forEach(d => { d.open = expand; });
-    syncToggleAll();
-  });
-  syncToggleAll();
+      // ── Collapse / expand player cards ────────────────────────────────
+      // Cards use <details>; the open set persists across the minute-by-minute re-render.
+      const $toggleAll = document.getElementById("toggle-all");
+      const $toggleAllLabel = document.getElementById("toggle-all-label");
+      const $toggleAllIcon = document.getElementById("toggle-all-icon");
+      const playerNames = Object.keys(PLAYERS);
+      function syncToggleAll() {
+        const allOpen =
+          playerNames.length > 0 && playerNames.every((n) => expanded.has(n));
+        if ($toggleAllLabel)
+          $toggleAllLabel.textContent = allOpen ? "Collapse all" : "Expand all";
+        if ($toggleAllIcon)
+          $toggleAllIcon.classList.toggle("rotate-180", allOpen);
+      }
+      // a <details> toggle event doesn't bubble, so catch it on the list during the capture phase
+      $lb.addEventListener(
+        "toggle",
+        (e) => {
+          const d = e.target;
+          if (!d || d.tagName !== "DETAILS" || !d.dataset.player) return;
+          if (d.open) expanded.add(d.dataset.player);
+          else expanded.delete(d.dataset.player);
+          syncToggleAll();
+        },
+        true,
+      );
+      if ($toggleAll)
+        $toggleAll.addEventListener("click", () => {
+          const expand = playerNames.some((n) => !expanded.has(n)); // any collapsed -> expand all, else collapse all
+          if (expand) playerNames.forEach((n) => expanded.add(n));
+          else expanded.clear();
+          $lb.querySelectorAll("details[data-player]").forEach((d) => {
+            d.open = expand;
+          });
+          syncToggleAll();
+        });
+      syncToggleAll();
 
-  load();
-  </script>
-</body>
+      load();
+    </script>
+  </body>
 </html>
